@@ -21,15 +21,12 @@ import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
 import com.typesafe.scalalogging.Logger
 import pureconfig.loadConfig
-import slick.jdbc.JdbcBackend.Database
 
 object RestServer {
 
   private val logger = Logger(this.getClass)
 
   val route = Index.route
-
-  val db = Database.forConfig("slicker")
 
   def main(args: Array[String]): Unit = {
 
@@ -46,7 +43,6 @@ object RestServer {
 
     bindingFuture.failed.foreach { ex =>
       logger.error("Failed to binding server address. {}", ex.getMessage)
-      db.close()
     }
   }
 }

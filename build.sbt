@@ -44,5 +44,6 @@ lazy val app = (project in file("."))
 dockerBaseImage := "openjdk:jre"
 maintainer := "Tzu-Chiao Yeh <su3g4284zo6y7@gmail.com>"
 packageSummary := "Small restful service for testing SQLs."
-packageName := "tz70s/kuery"
+packageName := "kuery"
 dockerExposedPorts := Seq(8080)
+dockerUsername := Some("tz70s")

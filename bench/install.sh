@@ -1,0 +1,5 @@
+#!/bin/bash
+
+git clone https://github.com/wg/wrk.git
+cd wrk
+make
