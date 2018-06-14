@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-name := "camp"
+name := "kuery"
 
 val settings = Seq(
   version := "0.1",
@@ -24,7 +24,9 @@ val settings = Seq(
 val dependencies = Seq(
   "com.github.pureconfig" %% "pureconfig" % "0.9.1",
   "ch.qos.logback" % "logback-classic" % "1.2.3",
-  "com.typesafe.scala-logging" %% "scala-logging" % "3.9.0"
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.9.0",
+  "com.typesafe.akka" %% "akka-http"   % "10.1.2",
+  "com.typesafe.akka" %% "akka-stream" % "2.5.12"
 )
 
 lazy val app = (project in file("app"))

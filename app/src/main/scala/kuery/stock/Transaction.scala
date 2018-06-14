@@ -14,24 +14,20 @@
  * limitations under the License.
  */
 
-package camp
+package kuery.stock
 
-import camp.stock.{Clothes, L}
-import com.typesafe.scalalogging.Logger
+import java.util.UUID
 
-object Camp {
+/** Automatically generate the uuid for stock storing. */
+case class TransactionId() {
+  private val rawId = UUID.randomUUID().toString
 
-  private val logger = Logger(this.getClass)
+  override def toString: String = s"$rawId"
+}
 
-  def main(args: Array[String]): Unit = {
+object Transaction {
 
-    logger.info("Start camping with SQLs ...")
-
-    // Create a new clothes.
-
-    val shirt = Clothes("tshirt", "h&m", L)
-
-    logger.info(shirt.toString)
+  def generate: TransactionId = {
+    TransactionId()
   }
-
 }

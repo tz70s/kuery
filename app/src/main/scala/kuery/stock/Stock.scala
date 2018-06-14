@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package camp.stock
+package kuery.stock
 
 sealed trait Stock {
   val id = Transaction.generate
