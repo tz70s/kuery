@@ -16,6 +16,9 @@
 
 name := "kuery"
 
+enablePlugins(JavaAppPackaging)
+enablePlugins(DockerPlugin)
+
 val settings = Seq(
   version := "0.1",
   scalaVersion := "2.12.6"
@@ -29,8 +32,14 @@ val dependencies = Seq(
   "com.typesafe.akka" %% "akka-stream" % "2.5.12"
 )
 
-lazy val app = (project in file("app"))
+lazy val app = (project in file("."))
   .settings(
     settings,
     libraryDependencies ++= dependencies
   )
+
+dockerBaseImage := "openjdk:jre"
+maintainer := "Tzu-Chiao Yeh <su3g4284zo6y7@gmail.com>"
+packageSummary := "Small restful service for testing SQLs."
+packageName := "tz70s/kuery"
+dockerExposedPorts := Seq(8080)
