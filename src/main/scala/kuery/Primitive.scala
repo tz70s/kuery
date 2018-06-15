@@ -20,7 +20,7 @@ import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 
-object Index {
+object Primitive extends Router {
 
   private val index =
     """|Howdy, here's the kuery playground:
@@ -34,14 +34,21 @@ object Index {
 
   private val plain = "Howdy!"
 
-  // Default index route.
-  val route: Route =
-    get {
-      path("") {
+  private val indexRoute =
+    path("") {
+      get {
         complete(HttpEntity(ContentTypes.`text/plain(UTF-8)`, index))
-      } ~
-        path("plain") {
-          complete(HttpEntity(ContentTypes.`text/plain(UTF-8)`, plain))
-        }
+      }
     }
+
+  private val plainRoute =
+    path("plain") {
+      get {
+        complete(HttpEntity(ContentTypes.`text/plain(UTF-8)`, plain))
+      }
+    }
+
+  // Default index route.
+  override val route: Route = indexRoute ~ plainRoute
+
 }

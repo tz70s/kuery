@@ -18,15 +18,19 @@ package kuery
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
+import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
 import com.typesafe.scalalogging.Logger
 import pureconfig.loadConfig
 
-object RestServer {
+object BenchServer {
 
   private val logger = Logger(this.getClass)
 
-  val route = Index.route
+  def router[R <: Router](routers: R*): Route = {
+    routers.map(_.route).reduce(_ ~ _)
+  }
 
   def main(args: Array[String]): Unit = {
 
@@ -38,6 +42,8 @@ object RestServer {
     val port = loadConfig[Int]("kuery.port") getOrElse 8080
 
     logger.info(s"Start comparison with SQLs! http://localhost:8080")
+
+    val route = router(Primitive, Sequelize())
 
     val bindingFuture = Http().bindAndHandle(route, server, port)
 
