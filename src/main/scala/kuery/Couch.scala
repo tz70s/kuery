@@ -26,9 +26,7 @@ import akka.stream.Materializer
 import akka.util.ByteString
 import pureconfig.loadConfigOrThrow
 
-import scala.concurrent.{Await, ExecutionContext}
-import scala.concurrent.duration._
-import scala.util.Success
+import scala.concurrent.{ExecutionContext}
 
 case class CouchConfig(val uri: String)
 
@@ -68,5 +66,4 @@ class Couch()(implicit system: ActorSystem, materializer: Materializer, executio
         complete(Http().singleRequest(HttpRequest(uri = search)))
       }
     }
-
 }

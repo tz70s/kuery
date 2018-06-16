@@ -62,7 +62,7 @@ trait SearchService {
 
     db.run(joinQuery.result) map {
       _.map { collect =>
-        s"${collect._1.name} is a ${collect._1.job}, working at ${collect._2.name} in ${collect._3.name} (${collect._3.level})"
+        s"${collect._1.name} is a ${collect._1.job}, working at ${collect._2.name} with ${collect._3.name} (${collect._3.level})"
       }.reduce(_ + "\n" + _)
     }
   }
@@ -77,7 +77,7 @@ trait SearchService {
    * @return Route akka server route.
    */
   def jobSearch: Route =
-    parameters('job.as[String], 'count.as[Boolean]).as(JobSearch) { search =>
+    parameters('job.as[String], 'count.as[Boolean] ? false).as(JobSearch) { search =>
       implicit val medicalJob: MedicalJob = MedicalJob.withName(search.job)
       Try {
         val fut = if (search.count) countJob else plainJob
