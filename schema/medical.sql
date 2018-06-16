@@ -29,9 +29,10 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `hospital` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
-  `level` enum('national','local') NOT NULL
+  `level` enum('national','local') NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
@@ -57,10 +58,12 @@ INSERT INTO `hospital` (`id`, `name`, `level`) VALUES
 --
 
 CREATE TABLE `medical_personnel` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
   `job` enum('nurse','pharmacist','doctor') NOT NULL,
-  `hospital_id` int(11) NOT NULL
+  `hospital_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`hospital_id`) REFERENCES `hospital`(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
@@ -93,9 +96,11 @@ INSERT INTO `medical_personnel` (`id`, `name`, `job`, `hospital_id`) VALUES
 --
 
 CREATE TABLE `pharmacy` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
-  `hospital_id` int(11) NOT NULL
+  `hospital_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`hospital_id`) REFERENCES `hospital`(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
@@ -114,68 +119,6 @@ INSERT INTO `pharmacy` (`id`, `name`, `hospital_id`) VALUES
 (9, '和康大藥局', 9),
 (10, '新獻安藥局', 10);
 
---
--- 已匯出資料表的索引
---
-
---
--- 資料表索引 `hospital`
---
-ALTER TABLE `hospital`
-  ADD PRIMARY KEY (`id`);
-
---
--- 資料表索引 `medical_personnel`
---
-ALTER TABLE `medical_personnel`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `work_for` (`hospital_id`) USING BTREE;
-
---
--- 資料表索引 `pharmacy`
---
-ALTER TABLE `pharmacy`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `inside` (`hospital_id`);
-
---
--- 在匯出的資料表使用 AUTO_INCREMENT
---
-
---
--- 使用資料表 AUTO_INCREMENT `hospital`
---
-ALTER TABLE `hospital`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
-
---
--- 使用資料表 AUTO_INCREMENT `medical_personnel`
---
-ALTER TABLE `medical_personnel`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
-
---
--- 使用資料表 AUTO_INCREMENT `pharmacy`
---
-ALTER TABLE `pharmacy`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
-
---
--- 已匯出資料表的限制(Constraint)
---
-
---
--- 資料表的 Constraints `medical_personnel`
---
-ALTER TABLE `medical_personnel`
-  ADD CONSTRAINT `kkkkkk` FOREIGN KEY (`hospital_id`) REFERENCES `hospital` (`id`);
-
---
--- 資料表的 Constraints `pharmacy`
---
-ALTER TABLE `pharmacy`
-  ADD CONSTRAINT `inside` FOREIGN KEY (`hospital_id`) REFERENCES `hospital` (`id`);
-COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
