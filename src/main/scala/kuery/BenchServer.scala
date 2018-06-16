@@ -22,6 +22,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
 import com.typesafe.scalalogging.Logger
+import kuery.sql.Sequelize
 import pureconfig.loadConfig
 
 object BenchServer {

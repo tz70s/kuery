@@ -25,6 +25,10 @@ object MedicalJob extends Enumeration {
   val nurse = Value("nurse")
   val pharmacist = Value("pharmacist")
   val doctor = Value("doctor")
+
+  implicit val mapper = MappedColumnType.base[MedicalJob, String](e => e.toString, s => MedicalJob.withName(s))
+
+  def withNameOpt(s: String): Option[Value] = values.find(_.toString == s)
 }
 
 case class Personnel(override val id: Int, override val name: String, job: MedicalJob, hospital: Int)
@@ -34,7 +38,7 @@ case class Personnel(override val id: Int, override val name: String, job: Medic
 
 class PersonnelTable(tag: Tag) extends Table[Personnel](tag, "medical_personnel") {
 
-  implicit val mapper = MappedColumnType.base[MedicalJob, String](e => e.toString, s => MedicalJob.withName(s))
+  import MedicalJob.mapper
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name = column[String]("name")
@@ -46,5 +50,5 @@ class PersonnelTable(tag: Tag) extends Table[Personnel](tag, "medical_personnel"
 }
 
 object PersonnelTable {
-  def query = TableQuery[PersonnelTable]
+  implicit val query = TableQuery[PersonnelTable]
 }

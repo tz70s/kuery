@@ -18,3 +18,12 @@ To run locally without docker requires sbt to build.
 sbt run
 ```
 
+## Performance Testing
+
+Predefined rules for adapting various behaviors:
+
+1. Plain Akka Http Server: `GET /plain`
+2. Simple SQL Query: `GET /sql/personnel?job=nurse`
+3. Simple SQL Aggregation: `GET /sql/personnel?job=nurse&count=true`
+4. Three table SQL Join: `GET /sql/personnel/join`
+

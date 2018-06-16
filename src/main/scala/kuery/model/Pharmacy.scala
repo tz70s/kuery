@@ -33,5 +33,5 @@ class PharmacyTable(tag: Tag) extends Table[Pharmacy](tag, "pharmacy") {
 }
 
 object PharmacyTable {
-  def query = TableQuery[PharmacyTable]
+  implicit val query = TableQuery[PharmacyTable]
 }
