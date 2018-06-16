@@ -43,7 +43,7 @@ object BenchServer {
 
     logger.info(s"Start comparison with SQLs! http://localhost:8080")
 
-    val route = router(Primitive, Sequelize())
+    val route = router(Primitive, Sequelize(), Couch())
 
     val bindingFuture = Http().bindAndHandle(route, server, port)
 

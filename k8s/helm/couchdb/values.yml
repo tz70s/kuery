@@ -1,0 +1,9 @@
+# Couchdb configuration for kubernetes deployment.
+
+# Specify the cluster size of couch instances.
+clusterSize: 3
+
+# Unsecure way, but it's fine here.
+# You can open up a browser, and login from http://<couchdb-ip>/_utils
+adminUsername: kuery_admin
+adminPassword: kuery_password

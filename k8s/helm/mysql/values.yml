@@ -1,0 +1,11 @@
+# Singleton MySQL configuration on kubernetes deployment.
+# For more detail, refer to https://github.com/kubernetes/charts/tree/master/stable/mysql
+
+# Unsecure way, but it's fine here.
+# i.e. mysql -h <host> -u root -p mysql_password
+mysqlRootPassword: mysql_password
+
+# Creating user and table.
+mysqlUser: kuery
+mysqlPassword: kuery_password
+mysqlDatabase: medical
