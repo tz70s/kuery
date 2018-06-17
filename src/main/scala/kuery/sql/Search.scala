@@ -29,18 +29,20 @@ case class JobSearch(job: String, count: Boolean)
 
 /** Searching related services */
 trait SearchService {
-  this: DatabaseService =>
+  this: Sequelizer =>
 
   /** SELECT COUNT(job) FROM medical_job WHERE job=<job> */
-  private def countJob(implicit job: MedicalJob) = {
+  private def countJob(job: MedicalJob) = {
     val countQuery = PersonnelTable.query.filter(_.job === job).length
     db.run(countQuery.result).map(_.toString)
   }
 
   /** SELECT * FROM medical_job WHERE job=<job> */
-  private def plainJob(implicit job: MedicalJob) = {
+  private def plainJob(job: MedicalJob) = {
     val jobQuery = for { person <- PersonnelTable.query if person.job === job } yield person
-    db.run(jobQuery.result) map { _.map(_.toString).reduce(_ + "\n" + _) }
+    db.run(jobQuery.result).map {
+      _.map(_.toString).reduce(_ + "\n" + _)
+    }
   }
 
   /**
@@ -59,7 +61,7 @@ trait SearchService {
         HospitalTable.query on (_._1.hospital === _.id) if person.job === MedicalJob.pharmacist
     } yield (person, pharmacy, hospital)
 
-    db.run(joinQuery.result) map {
+    db.run(joinQuery.result).map {
       _.map { collect =>
         s"${collect._1.name} is a ${collect._1.job}, working at ${collect._2.name} with ${collect._3.name} (${collect._3.level})"
       }.reduce(_ + "\n" + _)
@@ -77,11 +79,11 @@ trait SearchService {
    */
   def jobSearch: Route =
     parameters('job.as[String], 'count.as[Boolean] ? false).as(JobSearch) { search =>
-      implicit val medicalJob: MedicalJob = MedicalJob.withName(search.job)
       Try {
-        val fut = if (search.count) countJob else plainJob
+        val medicalJob: MedicalJob = MedicalJob.withName(search.job)
+        val fut = if (search.count) countJob(medicalJob) else plainJob(medicalJob)
         Await.result(fut, timeout)
-      } map (complete(_)) getOrElse reject
+      }.map(complete(_)).getOrElse(reject)
     }
 
   def joinSearch: Route =

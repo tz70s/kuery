@@ -18,68 +18,44 @@ package kuery.sql
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import kuery.{BenchServer, BenchService, PostService}
-import kuery.model.{HospitalTable, PersonnelTable, PharmacyTable}
+import kuery.{BenchConfig, BenchService, PostService}
+import kuery.model.{HospitalTable, PersonnelTable}
 import slick.jdbc.MySQLProfile.api._
-import slick.lifted.AbstractTable
 
-import scala.concurrent.{Await, ExecutionContext}
+import scala.concurrent.ExecutionContext
 
 /** Cake pattern for injecting database in common services */
-trait DatabaseService {
+trait Sequelizer {
 
   /** Have to inject the execution context. */
   implicit val executionContext: ExecutionContext
 
-  val timeout = BenchServer.timeout
+  val timeout = BenchConfig.timeout
 
   /** For overriding this during class initialization. */
   val db: Database
-
-  /** Basic listing function, SELECT * FROM table */
-  def list[T <: AbstractTable[_]](implicit query: TableQuery[T]) =
-    get {
-      val future = db.run(query.result) map {
-        _.map(_.toString).reduce(_ + "\n" + _)
-      }
-      val text = Await.result(future, timeout)
-      complete(text)
-    }
-}
-
-trait Sequelizer extends BenchService with SearchService with PostService with InsertService {
-  this: DatabaseService =>
-
-  override def hospitalRoute: Route = {
-    import HospitalTable.query
-    path("hospital") {
-      postHospital ~ list
-    }
-  }
-
-  override def personnelRoute: Route = {
-    import PersonnelTable.query
-    pathPrefix("personnel") {
-      postPersonnel ~ joinSearch ~ jobSearch ~ list
-    }
-  }
-
-  override def pharmacyRoute: Route = {
-    import PharmacyTable.query
-    path("pharmacy") {
-      postPharmacy ~ list
-    }
-  }
 }
 
 object Sequelize {
-
   def apply()(implicit executionContext: ExecutionContext) = new Sequelize
 }
 
-class Sequelize()(implicit val executionContext: ExecutionContext) extends Sequelizer with DatabaseService {
+class Sequelize()(implicit val executionContext: ExecutionContext)
+    extends BenchService
+    with SearchService
+    with PostService
+    with InsertService
+    with SelectAllService
+    with Sequelizer {
 
   override val db: Database = Database.forConfig("sql")
 
   override def guard: (=> Route) => Route = pathPrefix("sql")
+
+  override def hospitalRoute: Route = postHospital(insertHospital) ~ selectAll(HospitalTable.query)
+
+  override def personnelRoute: Route =
+    postPersonnel(insertPersonnel) ~ joinSearch ~ jobSearch ~ selectAll(PersonnelTable.query)
+
+  override def pharmacyRoute: Route = postPharmacy(insertPharmacy) ~ selectAll(PersonnelTable.query)
 }

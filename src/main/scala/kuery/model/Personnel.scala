@@ -32,7 +32,7 @@ object MedicalJob extends Enumeration {
   def withNameOpt(s: String): Option[Value] = values.find(_.toString == s)
 }
 
-case class Personnel(val id: Option[Int], val name: String, job: MedicalJob, hospital: Int) {
+case class Personnel(id: Option[Int], name: String, job: MedicalJob, hospital: Int) {
   override def toString: String = s"Personnel $id, name: $name, job: $job, hospital: $hospital"
 }
 
@@ -69,9 +69,8 @@ class PersonnelTable(tag: Tag) extends Table[Personnel](tag, "medical_personnel"
   def hospital = column[Int]("hospital_id")
 
   def * = (id.?, name, job, hospital) <> (Personnel.tupled, Personnel.unapply)
-
 }
 
 object PersonnelTable {
-  implicit val query = TableQuery[PersonnelTable]
+  val query = TableQuery[PersonnelTable]
 }

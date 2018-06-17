@@ -14,24 +14,25 @@
  * limitations under the License.
  */
 
-package kuery.model
+package kuery.sql
 
+import akka.http.scaladsl.server.Directives.{complete, get}
+import akka.http.scaladsl.server.Route
+import slick.lifted.AbstractTable
 import slick.jdbc.MySQLProfile.api._
-import slick.lifted.TableQuery
 
-case class Pharmacy(id: Option[Int], name: String, hospital: Int) {
-  override def toString: String = s"Pharmacy $id, name: $name, hospital: $hospital"
-}
+import scala.concurrent.Await
 
-class PharmacyTable(tag: Tag) extends Table[Pharmacy](tag, "pharmacy") {
+trait SelectAllService {
+  this: Sequelizer =>
 
-  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def name = column[String]("name")
-  def hospital = column[Int]("hospital_id")
-
-  def * = (id.?, name, hospital) <> (Pharmacy.tupled, Pharmacy.unapply)
-}
-
-object PharmacyTable {
-  val query = TableQuery[PharmacyTable]
+  /** Basic listing function, SELECT * FROM table */
+  def selectAll[T <: AbstractTable[_]](query: TableQuery[T]): Route =
+    get {
+      val future = db.run(query.result).map {
+        _.map(_.toString).reduce(_ + "\n" + _)
+      }
+      val text = Await.result(future, timeout)
+      complete(text)
+    }
 }

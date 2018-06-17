@@ -29,7 +29,15 @@ trait BenchService extends Router {
 
   final override def route: Route =
     guard {
-      hospitalRoute ~ personnelRoute ~ pharmacyRoute
+      pathPrefix("hospital") {
+        hospitalRoute
+      } ~
+        pathPrefix("personnel") {
+          personnelRoute
+        } ~
+        pathPrefix("pharmacy") {
+          pharmacyRoute
+        }
     }
 
   /**
@@ -42,7 +50,7 @@ trait BenchService extends Router {
   /**
    * Hospital relative route.
    *
-   * GET /guard/hospital will list all hospital in table.
+   * GET /guard/hospital will selectAll all hospital in table.
    * GET /guard/hospital?name=NiceHospital will return the row of matching hospital.
    *
    * @return Route the akka server route.
@@ -52,7 +60,7 @@ trait BenchService extends Router {
   /**
    * Personnel relative route.
    *
-   * GET /guard/personnel will list all personnel in table.
+   * GET /guard/personnel will selectAll all personnel in table.
    * GET /guard/personnel?name=Jon will return the row of matching personnel.
    *
    * @return Route the akka server route.
@@ -62,7 +70,7 @@ trait BenchService extends Router {
   /**
    * Pharmacy relative route.
    *
-   * GET /guard/pharmacy will list all personnel in table.
+   * GET /guard/pharmacy will selectAll all personnel in table.
    * GET /guard/pharmacy?name=nurse will return the row of matching pharmacy.
    *
    * @return Route the akka server route.

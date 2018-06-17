@@ -24,24 +24,20 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.Materializer
 import kuery.model._
-import kuery.{BenchServer, BenchService, PostService}
+import kuery.{BenchService, PostService}
 import pureconfig.loadConfigOrThrow
+import spray.json.DeserializationException
 
-import scala.concurrent.{Await, ExecutionContext}
+import scala.concurrent.ExecutionContext
 
-case class CouchConfig(val uri: String)
+case class CouchConfig(uri: String)
 
 object Couch {
   def apply()(implicit system: ActorSystem, materializer: Materializer, executionContext: ExecutionContext) =
     new Couch()
 }
 
-trait PostDocService extends JsonSupport {
-
-  import HospitalJsonProtocol._
-  import PersonnelJsonProtocol._
-
-  val postUrl: String
+trait DocumentService {
 
   implicit val system: ActorSystem
 
@@ -49,66 +45,57 @@ trait PostDocService extends JsonSupport {
 
   val http: HttpExt
 
-  def postHospitalDoc(hospital: Hospital): Route = {
-    val resp = Marshal(hospital).to[RequestEntity] flatMap { entity =>
-      val request = HttpRequest(uri = postUrl, method = HttpMethods.POST, entity = entity)
+  val baseUri: String
+}
+
+trait SelectAllDocumentService extends DocumentService {
+
+  def selectAllDoc(model: String): Route =
+    get {
+      val listView = s"$baseUri/_design/$model/_view/$model"
+      complete(http.singleRequest(HttpRequest(uri = listView)))
+    }
+
+}
+
+trait PostDocumentService extends JsonSupport with DocumentService {
+
+  import HospitalJsonProtocol._
+  import PersonnelJsonProtocol._
+
+  def postDocument[DocModel](model: DocModel): Route = {
+    val entityFuture = model match {
+      case hospital: Hospital   => Marshal(hospital).to[RequestEntity]
+      case personnel: Personnel => Marshal(personnel).to[RequestEntity]
+      case pharmacy: Pharmacy   => Marshal(pharmacy).to[RequestEntity]
+      case _                    => throw new DeserializationException("Document object expected.")
+    }
+
+    val resp = entityFuture.flatMap { entity =>
+      val request = HttpRequest(uri = baseUri, method = HttpMethods.POST, entity = entity)
       http.singleRequest(request)
     }
     complete(resp)
   }
-
-  def postPersonnelDoc(personnel: Personnel): Route = {
-    val resp = Marshal(personnel).to[RequestEntity] flatMap { entity =>
-      val request = HttpRequest(uri = postUrl, method = HttpMethods.POST, entity = entity)
-      http.singleRequest(request)
-    }
-    complete(resp)
-  }
-
-  def postPharmacyDoc(pharmacy: Pharmacy): Route = {
-    val resp = Marshal(pharmacy).to[RequestEntity] flatMap { entity =>
-      val request = HttpRequest(uri = postUrl, method = HttpMethods.POST, entity = entity)
-      http.singleRequest(request)
-    }
-    complete(resp)
-  }
-
 }
 
 class Couch()(implicit val system: ActorSystem, val materializer: Materializer, val executionContext: ExecutionContext)
     extends BenchService
     with PostService
-    with PostDocService {
+    with PostDocumentService
+    with SelectAllDocumentService {
 
   val config = loadConfigOrThrow[CouchConfig]("couch")
 
-  override val postUrl: String = s"${config.uri}/medical"
+  override val baseUri: String = s"${config.uri}/medical"
 
   override def guard: (=> Route) => Route = pathPrefix("nosql")
 
   override val http: HttpExt = Http()
 
-  override def hospitalRoute: Route =
-    path("hospital") {
-      get {
-        val search = s"${config.uri}/medical/_design/hospital/_view/hospital"
-        complete(http.singleRequest(HttpRequest(uri = search)))
-      } ~ postHospital(postHospitalDoc)
-    }
+  override def hospitalRoute: Route = selectAllDoc("hospital") ~ postHospital(postDocument)
 
-  override def personnelRoute: Route =
-    path("personnel") {
-      get {
-        val search = s"${config.uri}/medical/_design/personnel/_view/personnel"
-        complete(http.singleRequest(HttpRequest(uri = search)))
-      } ~ postPersonnel(postPersonnelDoc)
-    }
+  override def personnelRoute: Route = selectAllDoc("personnel") ~ postPersonnel(postDocument)
 
-  override def pharmacyRoute: Route =
-    path("pharmacy") {
-      get {
-        val search = s"${config.uri}/medical/_design/pharmacy/_view/pharmacy"
-        complete(http.singleRequest(HttpRequest(uri = search)))
-      } ~ postPharmacy(postPharmacyDoc)
-    }
+  override def pharmacyRoute: Route = selectAllDoc("pharmacy") ~ postPharmacy(postDocument)
 }

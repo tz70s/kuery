@@ -29,21 +29,21 @@ trait PostService extends JsonSupport {
   import HospitalJsonProtocol._
   import PersonnelJsonProtocol._
 
-  def postHospital(implicit r: Hospital => Route): Route =
+  def postHospital(r: Hospital => Route): Route =
     post {
       entity(as[Hospital]) { hos =>
         r(hos)
       }
     }
 
-  def postPersonnel(implicit p: Personnel => Route): Route =
+  def postPersonnel(p: Personnel => Route): Route =
     post {
       entity(as[Personnel]) { per =>
         p(per)
       }
     }
 
-  def postPharmacy(implicit p: Pharmacy => Route): Route =
+  def postPharmacy(p: Pharmacy => Route): Route =
     post {
       entity(as[Pharmacy]) { pharmacy =>
         p(pharmacy)

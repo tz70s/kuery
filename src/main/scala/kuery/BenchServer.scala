@@ -19,8 +19,8 @@ package kuery
 import akka.actor.ActorSystem
 import akka.event.slf4j.Logger
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
 import kamon.Kamon
 import kamon.prometheus.PrometheusReporter
@@ -31,13 +31,15 @@ import pureconfig.loadConfigOrThrow
 
 import scala.concurrent.duration._
 
+object BenchConfig {
+  val timeout = loadConfigOrThrow[Int]("kuery.timeout") seconds
+}
+
 object BenchServer {
 
-  val kLogger = Logger("kuery.bench")
+  private[this] val kLogger = Logger("kuery.bench")
 
-  val timeout = loadConfigOrThrow[Int]("kuery.timeout") seconds
-
-  def router[R <: Router](routers: R*): Route = {
+  private[this] def routers[R <: Router](routers: R*): Route = {
     routers.map(_.route).reduce(_ ~ _)
   }
 
@@ -55,7 +57,7 @@ object BenchServer {
 
     kLogger.info("Spawn the benchmarking server for SQLs execution, http://127.0.0.1:8080")
 
-    val route = router(Primitive, Sequelize(), Couch())
+    val route = routers(Primitive, Sequelize(), Couch())
 
     val bindingFuture = Http().bindAndHandle(route, server, port)
 

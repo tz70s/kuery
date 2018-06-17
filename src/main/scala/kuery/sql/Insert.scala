@@ -19,10 +19,9 @@ package kuery.sql
 import akka.http.scaladsl.server.Route
 import kuery.model._
 import akka.http.scaladsl.server.Directives._
-import slick.jdbc.MySQLProfile.api._
 
 trait InsertService {
-  this: DatabaseService =>
+  this: Sequelizer =>
 
   /**
    * Insert of hospital, transform directly into sql statement and ignore the id value.

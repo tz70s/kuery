@@ -66,5 +66,5 @@ class HospitalTable(tag: Tag) extends Table[Hospital](tag, "hospital") {
 }
 
 object HospitalTable {
-  implicit val query = TableQuery[HospitalTable]
+  val query = TableQuery[HospitalTable]
 }

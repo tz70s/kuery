@@ -22,7 +22,7 @@ import akka.http.scaladsl.server.Route
 
 object Primitive extends Router {
 
-  private val index =
+  private[this] val index =
     """|Howdy, here's the kuery playground:
        |
        |/plain               => route for testing pure http performance with short plain text.
@@ -32,23 +32,22 @@ object Primitive extends Router {
        |
     """.stripMargin
 
-  private val plain = "Howdy!"
+  private[this] val plain = "Howdy!"
 
-  private val indexRoute =
+  private[this] val indexRoute =
     path("") {
       get {
         complete(HttpEntity(ContentTypes.`text/plain(UTF-8)`, index))
       }
     }
 
-  private val plainRoute =
+  private[this] val plainRoute =
     path("plain") {
       get {
         complete(HttpEntity(ContentTypes.`text/plain(UTF-8)`, plain))
       }
     }
 
-  // Default index route.
+  /** Default index route. */
   override val route: Route = indexRoute ~ plainRoute
-
 }
