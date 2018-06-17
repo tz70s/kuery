@@ -17,11 +17,14 @@
 package kuery
 
 import akka.actor.ActorSystem
+import akka.event.slf4j.Logger
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
-import com.typesafe.scalalogging.Logger
+import kamon.Kamon
+import kamon.prometheus.PrometheusReporter
+import kamon.zipkin.ZipkinReporter
 import kuery.nosql.Couch
 import kuery.sql.Sequelize
 import pureconfig.loadConfigOrThrow
@@ -30,7 +33,7 @@ import scala.concurrent.duration._
 
 object BenchServer {
 
-  private val logger = Logger(this.getClass)
+  val kLogger = Logger("kuery.bench")
 
   val timeout = loadConfigOrThrow[Int]("kuery.timeout") seconds
 
@@ -47,14 +50,17 @@ object BenchServer {
     val server = "0.0.0.0"
     val port = loadConfigOrThrow[Int]("kuery.port")
 
-    logger.info(s"Start comparison with SQLs! http://localhost:8080")
+    Kamon.addReporter(new PrometheusReporter())
+    Kamon.addReporter(new ZipkinReporter())
+
+    kLogger.info("Spawn the benchmarking server for SQLs execution, http://127.0.0.1:8080")
 
     val route = router(Primitive, Sequelize(), Couch())
 
     val bindingFuture = Http().bindAndHandle(route, server, port)
 
     bindingFuture.failed.foreach { ex =>
-      logger.error("Failed to binding server address. {}", ex.getMessage)
+      Console.err.print("Failed to binding server address. {}", ex.getMessage)
     }
   }
 }
