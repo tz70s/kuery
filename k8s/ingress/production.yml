@@ -12,3 +12,7 @@ spec:
         backend:
           serviceName: kuery
           servicePort: 8080
+  tls:
+    - secretName: kuery-tls-cert
+      hosts:
+      - localhost
