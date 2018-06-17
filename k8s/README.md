@@ -29,3 +29,21 @@ Containing helm configurations:
 2. [CouchDB](https://github.com/kubernetes/charts/tree/master/incubator/couchdb)
 3. [Vitess](https://github.com/vitessio/vitess/tree/master/helm/vitess)
 4. [TiDB](https://banzaicloud.com/blog/tidb-kubernetes/)
+
+## Step-by-step Deployment
+
+```bash
+# Install ingress controller
+helm install stable/nginx-ingress
+
+# Create ingress controller, which contains the default 80 port of kuery-service
+kubectl apply -f ingress/production.yml
+
+# TiDB
+helm repo add banzaicloud-incubator http://kubernetes-charts-incubator.banzaicloud.com
+helm repo update
+helm install --name tidb banzaicloud-incubator/tidb
+
+# Kuery
+kubectl run kuery --image tz70s/kuery:0.1 --replicas=3
+```
