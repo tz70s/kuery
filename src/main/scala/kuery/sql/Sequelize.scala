@@ -18,12 +18,11 @@ package kuery.sql
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import kuery.BenchService
+import kuery.{BenchServer, BenchService, PostService}
 import kuery.model.{HospitalTable, PersonnelTable, PharmacyTable}
 import slick.jdbc.MySQLProfile.api._
 import slick.lifted.AbstractTable
 
-import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext}
 
 /** Cake pattern for injecting database in common services */
@@ -31,6 +30,8 @@ trait DatabaseService {
 
   /** Have to inject the execution context. */
   implicit val executionContext: ExecutionContext
+
+  val timeout = BenchServer.timeout
 
   /** For overriding this during class initialization. */
   val db: Database
@@ -41,32 +42,32 @@ trait DatabaseService {
       val future = db.run(query.result) map {
         _.map(_.toString).reduce(_ + "\n" + _)
       }
-      val text = Await.result(future, 10 seconds)
+      val text = Await.result(future, timeout)
       complete(text)
     }
 }
 
-trait Sequelizer extends BenchService with SearchService {
+trait Sequelizer extends BenchService with SearchService with PostService with InsertService {
   this: DatabaseService =>
 
   override def hospitalRoute: Route = {
     import HospitalTable.query
     path("hospital") {
-      list
+      postHospital ~ list
     }
   }
 
   override def personnelRoute: Route = {
     import PersonnelTable.query
     pathPrefix("personnel") {
-      joinSearch ~ jobSearch ~ list
+      postPersonnel ~ joinSearch ~ jobSearch ~ list
     }
   }
 
   override def pharmacyRoute: Route = {
     import PharmacyTable.query
     path("pharmacy") {
-      list
+      postPharmacy ~ list
     }
   }
 }
@@ -78,7 +79,7 @@ object Sequelize {
 
 class Sequelize()(implicit val executionContext: ExecutionContext) extends Sequelizer with DatabaseService {
 
-  override val db: Database = Database.forConfig("slicker")
+  override val db: Database = Database.forConfig("sql")
 
   override def guard: (=> Route) => Route = pathPrefix("sql")
 }

@@ -16,10 +16,9 @@
 
 package kuery.model
 
-/** Polymorphism for searching service */
-trait Searchable {
+import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
+import spray.json.DefaultJsonProtocol
 
-  val id: Int
-
-  val name: String
+trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
+  implicit val pharmacyFormat = jsonFormat3(Pharmacy)
 }

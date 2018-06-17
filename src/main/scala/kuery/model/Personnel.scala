@@ -19,6 +19,7 @@ package kuery.model
 import kuery.model.MedicalJob.MedicalJob
 import slick.jdbc.MySQLProfile.api._
 import slick.lifted.TableQuery
+import spray.json._
 
 object MedicalJob extends Enumeration {
   type MedicalJob = Value
@@ -31,9 +32,31 @@ object MedicalJob extends Enumeration {
   def withNameOpt(s: String): Option[Value] = values.find(_.toString == s)
 }
 
-case class Personnel(override val id: Int, override val name: String, job: MedicalJob, hospital: Int)
-    extends Searchable {
+case class Personnel(val id: Option[Int], val name: String, job: MedicalJob, hospital: Int) {
   override def toString: String = s"Personnel $id, name: $name, job: $job, hospital: $hospital"
+}
+
+object PersonnelJsonProtocol extends DefaultJsonProtocol with NullOptions {
+  implicit object PersonnelJsonFormat extends RootJsonFormat[Personnel] {
+    override def write(p: Personnel): JsValue = {
+      JsObject(
+        "id" -> p.id.toJson,
+        "name" -> JsString(p.name),
+        "job" -> JsString(p.job.toString),
+        "hospital" -> JsNumber(p.hospital))
+    }
+
+    override def read(value: JsValue): Personnel = {
+      value.asJsObject.getFields("id", "name", "job", "hospital") match {
+        case Seq(JsNumber(id), JsString(name), JsString(job), JsNumber(hospital)) =>
+          // Let it throw.
+          Personnel(Some(id.toInt), name, MedicalJob.withName(job), hospital.toInt)
+        case Seq(JsString(name), JsString(job), JsNumber(hospital)) =>
+          Personnel(None, name, MedicalJob.withName(job), hospital.toInt)
+        case _ => throw new DeserializationException("Personnel object expected.")
+      }
+    }
+  }
 }
 
 class PersonnelTable(tag: Tag) extends Table[Personnel](tag, "medical_personnel") {
@@ -45,7 +68,7 @@ class PersonnelTable(tag: Tag) extends Table[Personnel](tag, "medical_personnel"
   def job = column[MedicalJob]("job")
   def hospital = column[Int]("hospital_id")
 
-  def * = (id, name, job, hospital) <> (Personnel.tupled, Personnel.unapply)
+  def * = (id.?, name, job, hospital) <> (Personnel.tupled, Personnel.unapply)
 
 }
 

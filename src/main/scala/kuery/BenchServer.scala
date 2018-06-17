@@ -22,12 +22,17 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
 import com.typesafe.scalalogging.Logger
+import kuery.nosql.Couch
 import kuery.sql.Sequelize
-import pureconfig.loadConfig
+import pureconfig.loadConfigOrThrow
+
+import scala.concurrent.duration._
 
 object BenchServer {
 
   private val logger = Logger(this.getClass)
+
+  val timeout = loadConfigOrThrow[Int]("kuery.timeout") seconds
 
   def router[R <: Router](routers: R*): Route = {
     routers.map(_.route).reduce(_ ~ _)
@@ -40,7 +45,7 @@ object BenchServer {
     implicit val executionContext = system.dispatcher
 
     val server = "0.0.0.0"
-    val port = loadConfig[Int]("kuery.port") getOrElse 8080
+    val port = loadConfigOrThrow[Int]("kuery.port")
 
     logger.info(s"Start comparison with SQLs! http://localhost:8080")
 

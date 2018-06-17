@@ -24,7 +24,6 @@ import slick.jdbc.MySQLProfile.api._
 
 import scala.concurrent.Await
 import scala.util.Try
-import scala.concurrent.duration._
 
 case class JobSearch(job: String, count: Boolean)
 
@@ -81,14 +80,14 @@ trait SearchService {
       implicit val medicalJob: MedicalJob = MedicalJob.withName(search.job)
       Try {
         val fut = if (search.count) countJob else plainJob
-        Await.result(fut, 10 seconds)
+        Await.result(fut, timeout)
       } map (complete(_)) getOrElse reject
     }
 
   def joinSearch: Route =
     path("join") {
       get {
-        val text = Await.result(bigJoin, 30 seconds)
+        val text = Await.result(bigJoin, timeout)
         complete(text)
       }
     }

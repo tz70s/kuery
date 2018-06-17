@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package kuery
+package kuery.nosql
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse, StatusCodes}
+import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.Materializer
-import akka.util.ByteString
+import kuery.BenchService
 import pureconfig.loadConfigOrThrow
 
-import scala.concurrent.{ExecutionContext}
+import scala.concurrent.ExecutionContext
 
 case class CouchConfig(val uri: String)
 

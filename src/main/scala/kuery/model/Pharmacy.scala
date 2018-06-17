@@ -19,7 +19,7 @@ package kuery.model
 import slick.jdbc.MySQLProfile.api._
 import slick.lifted.TableQuery
 
-case class Pharmacy(override val id: Int, override val name: String, hospital: Int) extends Searchable {
+case class Pharmacy(val id: Option[Int], val name: String, hospital: Int) {
   override def toString: String = s"Pharmacy $id, name: $name, hospital: $hospital"
 }
 
@@ -29,7 +29,7 @@ class PharmacyTable(tag: Tag) extends Table[Pharmacy](tag, "pharmacy") {
   def name = column[String]("name")
   def hospital = column[Int]("hospital_id")
 
-  def * = (id, name, hospital) <> (Pharmacy.tupled, Pharmacy.unapply)
+  def * = (id.?, name, hospital) <> (Pharmacy.tupled, Pharmacy.unapply)
 }
 
 object PharmacyTable {
