@@ -27,7 +27,7 @@ CREATE TABLE `hospital` (
   `name` varchar(50) NOT NULL,
   `level` enum('national','local') NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8_bin AUTO_INCREMENT=30002;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -54,7 +54,7 @@ CREATE TABLE `medical_personnel` (
   `hospital_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `hospital_id` FOREIGN KEY (`hospital_id`) REFERENCES `hospital` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8_bin AUTO_INCREMENT=30002;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -80,7 +80,7 @@ CREATE TABLE `pharmacy` (
   `hospital_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `hospital_id` FOREIGN KEY (`hospital_id`) REFERENCES `hospital` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8_bin AUTO_INCREMENT=30002;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --

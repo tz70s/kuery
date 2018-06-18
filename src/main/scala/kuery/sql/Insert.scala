@@ -31,12 +31,9 @@ trait InsertService {
    * INSERT (name, level) INTO `hospital` VALUES (name, level);
    */
   implicit def insertHospital(hospital: Hospital): Route = {
-
-    val statement = DBIO.seq(HospitalTable.query += hospital)
-
-    val _ = Await.result(db.run(statement), timeout)
-
-    complete("Ok")
+    val statement = (HospitalTable.query returning HospitalTable.query.map(_.id)) += hospital
+    val id = Await.result(db.run(statement), timeout)
+    complete(id.toString)
   }
 
   /**
@@ -45,11 +42,9 @@ trait InsertService {
    * TODO: We may consider to support automatically match this by opening two sql statements transactionally.
    */
   implicit def insertPersonnel(personnel: Personnel): Route = {
-    val statement = DBIO.seq(PersonnelTable.query += personnel)
-
-    val _ = Await.result(db.run(statement), timeout)
-
-    complete("Ok")
+    val statement = (PersonnelTable.query returning PersonnelTable.query.map(_.id)) += personnel
+    val id = Await.result(db.run(statement), timeout)
+    complete(id.toString)
   }
 
   /**
@@ -58,10 +53,8 @@ trait InsertService {
    * TODO: We may consider to support automatically match this by opening two sql statements transactionally.
    */
   implicit def insertPharmacy(pharmacy: Pharmacy): Route = {
-    val statement = DBIO.seq(PharmacyTable.query += pharmacy)
-
-    val _ = Await.result(db.run(statement), timeout)
-
-    complete("Ok")
+    val statement = (PharmacyTable.query returning PharmacyTable.query.map(_.id)) += pharmacy
+    val id = Await.result(db.run(statement), timeout)
+    complete(id.toString)
   }
 }
