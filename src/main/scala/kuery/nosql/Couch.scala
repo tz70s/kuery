@@ -26,7 +26,7 @@ import akka.stream.Materializer
 import kuery.model._
 import kuery.{BenchService, PostService}
 import pureconfig.loadConfigOrThrow
-import spray.json.DeserializationException
+import spray.json._
 
 import scala.concurrent.ExecutionContext
 
@@ -56,6 +56,14 @@ trait SelectAllDocumentService extends DocumentService {
       complete(http.singleRequest(HttpRequest(uri = listView)))
     }
 
+  def bigJoin(model: String): Route =
+    path("join") {
+      get {
+        val joinView = s"$baseUri/_design/$model/_view/join"
+        complete(http.singleRequest(HttpRequest(uri = joinView)))
+      }
+    }
+
 }
 
 trait PostDocumentService extends JsonSupport with DocumentService {
@@ -63,14 +71,21 @@ trait PostDocumentService extends JsonSupport with DocumentService {
   import HospitalJsonProtocol._
   import PersonnelJsonProtocol._
 
-  def postDocument[DocModel](model: DocModel): Route = {
-    val entityFuture = model match {
-      case hospital: Hospital   => Marshal(hospital).to[RequestEntity]
-      case personnel: Personnel => Marshal(personnel).to[RequestEntity]
-      case pharmacy: Pharmacy   => Marshal(pharmacy).to[RequestEntity]
-      case _                    => throw new DeserializationException("Document object expected.")
+  private[this] def typeInjection[DocModel](model: DocModel) = {
+    model match {
+      case hospital: Hospital =>
+        JsObject("hospital" -> hospital.toJson)
+      case personnel: Personnel =>
+        JsObject("personnel" -> personnel.toJson)
+      case pharmacy: Pharmacy =>
+        JsObject("pharmacy" -> pharmacy.toJson)
+      case _ => throw new DeserializationException("Document object expected.")
     }
+  }
 
+  def postDocument[DocModel](model: DocModel): Route = {
+    val injectModel = typeInjection(model)
+    val entityFuture = Marshal(injectModel).to[RequestEntity]
     val resp = entityFuture.flatMap { entity =>
       val request = HttpRequest(uri = baseUri, method = HttpMethods.POST, entity = entity)
       http.singleRequest(request)
@@ -95,7 +110,8 @@ class Couch()(implicit val system: ActorSystem, val materializer: Materializer, 
 
   override def hospitalRoute: Route = selectAllDoc("hospital") ~ postHospital(postDocument)
 
-  override def personnelRoute: Route = selectAllDoc("personnel") ~ postPersonnel(postDocument)
+  override def personnelRoute: Route =
+    bigJoin("personnel") ~ selectAllDoc("personnel") ~ postPersonnel(postDocument)
 
   override def pharmacyRoute: Route = selectAllDoc("pharmacy") ~ postPharmacy(postDocument)
 }

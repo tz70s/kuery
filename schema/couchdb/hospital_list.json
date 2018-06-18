@@ -1,0 +1,10 @@
+{
+  "_id": "_design/hospital",
+  "_rev": "3-31c906b4e519460a94e57afb86a74646",
+  "views": {
+    "hospital": {
+      "map": "function (doc) {\n  if (doc.hospital) {\n    var inner = doc.hospital\n    if (inner.id && inner.name && inner.level) {\n      emit(inner);\n    }\n  }\n}"
+    }
+  },
+  "language": "javascript"
+}

@@ -1,0 +1,10 @@
+{
+  "_id": "_design/pharmacy",
+  "_rev": "1-24a7ce56fa6ff89b716185f067709495",
+  "views": {
+    "pharmacy": {
+      "map": "function (doc) {\n  if (doc.pharmacy) {\n    var inner = doc.pharmacy\n    if (inner.name && inner.hospital) {\n      emit(inner);\n    }\n  }\n}"
+    }
+  },
+  "language": "javascript"
+}

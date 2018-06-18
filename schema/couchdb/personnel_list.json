@@ -1,0 +1,10 @@
+{
+  "_id": "_design/personnel",
+  "_rev": "2-048d6681345a393f99a3e1abbba9cebb",
+  "views": {
+    "personnel": {
+      "map": "function (doc) {\n  if (doc.personnel) {\n    var inner = doc.personnel\n    if (inner.hospital && inner.name && inner.job) {\n      emit(inner);\n    }\n  }\n}"
+    }
+  },
+  "language": "javascript"
+}
