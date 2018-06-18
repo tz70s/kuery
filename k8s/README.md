@@ -47,3 +47,9 @@ helm install --name tidb banzaicloud-incubator/tidb
 # Kuery
 kubectl run kuery --image tz70s/kuery:0.1 --replicas=3
 ```
+
+## Version binding
+
+* Grafana: 4.6.3
+* Pushgateway: v0.4.0
+* Prometheus: v2.2.1

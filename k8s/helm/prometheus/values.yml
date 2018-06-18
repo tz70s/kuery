@@ -1,0 +1,5 @@
+# Bound push gateway version, since tidb is not compatible.
+# https://github.com/pingcap/tidb/issues/6759
+pushgateway:
+  image:
+    tag: v0.4.0
