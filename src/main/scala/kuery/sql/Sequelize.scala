@@ -19,7 +19,7 @@ package kuery.sql
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import kuery.{BenchConfig, BenchService, PostService}
-import kuery.model.{HospitalTable, PersonnelTable}
+import kuery.model.{HospitalTable, PersonnelTable, PharmacyTable}
 import slick.jdbc.MySQLProfile.api._
 
 import scala.concurrent.ExecutionContext
@@ -57,5 +57,5 @@ class Sequelize()(implicit val executionContext: ExecutionContext)
   override def personnelRoute: Route =
     postPersonnel(insertPersonnel) ~ joinSearch ~ jobSearch ~ selectAll(PersonnelTable.query)
 
-  override def pharmacyRoute: Route = postPharmacy(insertPharmacy) ~ selectAll(PersonnelTable.query)
+  override def pharmacyRoute: Route = postPharmacy(insertPharmacy) ~ selectAll(PharmacyTable.query)
 }
