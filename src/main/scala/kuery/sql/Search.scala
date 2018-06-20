@@ -18,11 +18,10 @@ package kuery.sql
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import akka.http.scaladsl.server._
 import akka.http.scaladsl.model._
 import StatusCodes._
 import kuery.model.MedicalJob.MedicalJob
-import kuery.model.{HospitalTable, MedicalJob, PersonnelTable, PharmacyTable}
+import kuery.model._
 import slick.jdbc.MySQLProfile.api._
 
 import scala.concurrent.Await
@@ -61,14 +60,10 @@ trait SearchService {
     val joinQuery = for {
       ((person, pharmacy), hospital) <- PersonnelTable.query join
         PharmacyTable.query on (_.hospital === _.hospital) join
-        HospitalTable.query on (_._1.hospital === _.id) if person.job === MedicalJob.pharmacist
+        HospitalTable.query on (_._1.hospital === _.id)
+      if (person.job === MedicalJob.pharmacist) && (hospital.level === HospitalLevel.local)
     } yield (person, pharmacy, hospital)
-
-    db.run(joinQuery.result).map {
-      _.map { collect =>
-        s"${collect._1.name} is a ${collect._1.job}, working at ${collect._2.name} with ${collect._3.name} (${collect._3.level})"
-      }.reduce(_ + "\n" + _)
-    }
+    db.run(joinQuery.result)
   }
 
   /**
@@ -93,8 +88,8 @@ trait SearchService {
     path("join") {
       get {
         Try {
-          val text = Await.result(bigJoin(), timeout)
-          text
+          val _ = Await.result(bigJoin(), timeout)
+          "Ok"
         } map (complete(_)) getOrElse {
           complete((RequestTimeout, "Join too long."))
         }
