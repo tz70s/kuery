@@ -20,7 +20,7 @@ enablePlugins(JavaAppPackaging)
 enablePlugins(DockerPlugin)
 
 val settings = Seq(
-  version := "0.1.1",
+  version := "0.1.3",
   scalaVersion := "2.12.6"
 )
 

@@ -18,6 +18,9 @@ package kuery.sql
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.server._
+import akka.http.scaladsl.model._
+import StatusCodes._
 import kuery.model.MedicalJob.MedicalJob
 import kuery.model.{HospitalTable, MedicalJob, PersonnelTable, PharmacyTable}
 import slick.jdbc.MySQLProfile.api._
@@ -90,8 +93,11 @@ trait SearchService {
     path("join") {
       get {
         Try {
-          Await.result(bigJoin, timeout)
-        } map (complete(_)) getOrElse (reject)
+          val text = Await.result(bigJoin(), timeout)
+          text
+        } map (complete(_)) getOrElse {
+          complete((RequestTimeout, "Join too long."))
+        }
       }
     }
 }

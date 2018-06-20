@@ -55,7 +55,7 @@ object BenchServer {
     Kamon.addReporter(new PrometheusReporter())
     Kamon.addReporter(new ZipkinReporter())
 
-    kLogger.info("Spawn the benchmarking server for SQLs execution, http://127.0.0.1:8080")
+    kLogger.info(s"Spawn the benchmarking server for SQLs execution, http://127.0.0.1:$port")
 
     val route = routers(Primitive, Sequelize(), Couch())
 

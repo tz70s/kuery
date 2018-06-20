@@ -55,7 +55,7 @@ class Sequelize()(implicit val executionContext: ExecutionContext)
   override def hospitalRoute: Route = postHospital(insertHospital) ~ selectAll(HospitalTable.query)
 
   override def personnelRoute: Route =
-    postPersonnel(insertPersonnel) ~ joinSearch ~ jobSearch ~ selectAll(PersonnelTable.query)
+    postPersonnel(insertPersonnel) ~ jobSearch ~ joinSearch ~ selectAll(PersonnelTable.query)
 
   override def pharmacyRoute: Route = postPharmacy(insertPharmacy) ~ selectAll(PharmacyTable.query)
 }
