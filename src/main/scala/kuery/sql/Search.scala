@@ -89,8 +89,9 @@ trait SearchService {
   def joinSearch: Route =
     path("join") {
       get {
-        val text = Await.result(bigJoin, timeout)
-        complete(text)
+        Try {
+          Await.result(bigJoin, timeout)
+        } map (complete(_)) getOrElse (reject)
       }
     }
 }
