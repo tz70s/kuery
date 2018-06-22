@@ -58,4 +58,8 @@ class Sequelize()(implicit val executionContext: ExecutionContext)
     postPersonnel(insertPersonnel) ~ jobSearch ~ joinSearch ~ selectAll(PersonnelTable.query)
 
   override def pharmacyRoute: Route = postPharmacy(insertPharmacy) ~ selectAll(PharmacyTable.query)
+
+  def closeOut(): Unit = {
+    db.close()
+  }
 }

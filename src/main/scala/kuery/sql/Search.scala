@@ -62,7 +62,7 @@ trait SearchService {
         PharmacyTable.query on (_.hospital === _.hospital) join
         HospitalTable.query on (_._1.hospital === _.id)
       if (person.job === MedicalJob.pharmacist) && (hospital.level === HospitalLevel.local)
-    } yield (person, pharmacy, hospital)
+    } yield (person.name, person.job, pharmacy.name, hospital.name)
     db.run(joinQuery.result)
   }
 
