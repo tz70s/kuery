@@ -29,8 +29,8 @@ trait SelectAllService {
   /** Basic listing function, SELECT * FROM table */
   def selectAll[T <: AbstractTable[_]](query: TableQuery[T]): Route =
     get {
-      val future = db.run(query.result).map {
-        _.map(_.toString).reduce(_ + "\n" + _)
+      val future = db.run(query.result) map {
+        _ map (_.toString) reduce (_ + "\n" + _)
       }
       val text = Await.result(future, timeout)
       complete(text)

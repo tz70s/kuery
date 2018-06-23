@@ -86,7 +86,7 @@ trait PostDocumentService extends JsonSupport with DocumentService {
   def postDocument[DocModel](model: DocModel): Route = {
     val injectModel = typeInjection(model)
     val entityFuture = Marshal(injectModel).to[RequestEntity]
-    val resp = entityFuture.flatMap { entity =>
+    val resp = entityFuture flatMap { entity =>
       val request = HttpRequest(uri = baseUri, method = HttpMethods.POST, entity = entity)
       http.singleRequest(request)
     }

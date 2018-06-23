@@ -81,7 +81,7 @@ trait SearchService {
         val medicalJob: MedicalJob = MedicalJob.withName(search.job)
         val fut = if (search.count) countJob(medicalJob) else plainJob(medicalJob)
         Await.result(fut, timeout)
-      }.map(complete(_)).getOrElse(reject)
+      } map (complete(_)) getOrElse reject
     }
 
   def joinSearch: Route =

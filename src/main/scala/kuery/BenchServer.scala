@@ -42,7 +42,7 @@ object BenchServer {
   private[this] val kLogger = Logger("kuery.bench")
 
   private[this] def routers[R <: Router](routers: R*): Route = {
-    routers.map(_.route).reduce(_ ~ _)
+    routers map (_.route) reduce (_ ~ _)
   }
 
   def main(args: Array[String]): Unit = {

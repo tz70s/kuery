@@ -28,8 +28,6 @@ object MedicalJob extends Enumeration {
   val doctor = Value("doctor")
 
   implicit val mapper = MappedColumnType.base[MedicalJob, String](e => e.toString, s => MedicalJob.withName(s))
-
-  def withNameOpt(s: String): Option[Value] = values.find(_.toString == s)
 }
 
 case class Personnel(id: Option[Int], name: String, job: MedicalJob, hospital: Int) {
@@ -53,7 +51,7 @@ object PersonnelJsonProtocol extends DefaultJsonProtocol with NullOptions {
           Personnel(Some(id.toInt), name, MedicalJob.withName(job), hospital.toInt)
         case Seq(JsString(name), JsString(job), JsNumber(hospital)) =>
           Personnel(None, name, MedicalJob.withName(job), hospital.toInt)
-        case _ => throw new DeserializationException("Personnel object expected.")
+        case _ => throw DeserializationException("Personnel object expected.")
       }
     }
   }
