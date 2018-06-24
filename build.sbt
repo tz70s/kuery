@@ -19,12 +19,12 @@ name := "kuery"
 enablePlugins(JavaAppPackaging)
 enablePlugins(DockerPlugin)
 
-val settings = Seq(
+lazy val settings = Seq(
   version := "0.1.3.1",
   scalaVersion := "2.12.6"
 )
 
-val dependencies = Seq(
+lazy val dependencies = Seq(
   "com.github.pureconfig" %% "pureconfig" % "0.9.1",
   "ch.qos.logback" % "logback-classic" % "1.2.3",
   "com.typesafe.akka" %% "akka-http"   % "10.1.2",
